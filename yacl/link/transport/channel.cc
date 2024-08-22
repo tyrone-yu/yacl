@@ -324,9 +324,12 @@ void Channel::SendRequestWithRetry(const ::google::protobuf::Message& request,
       YACL_THROW_LINK_ABORTED("channel is aborting");
     }
     try {
+      SPDLOG_INFO("wo shi 22231");
       link_->SendRequest(request, timeout_override_ms);
+      SPDLOG_INFO("wo shi xxxx");
       break;
     } catch (const yacl::LinkError& e) {
+      SPDLOG_INFO("wo shi 1221");
       auto should_retry = [&](const RetryOptions& retry_options) -> bool {
         if (retry_options.aggressive_retry) {
           return true;
@@ -342,15 +345,16 @@ void Channel::SendRequestWithRetry(const ::google::protobuf::Message& request,
         }
         return false;
       };
-
+      SPDLOG_INFO("wo shi 2222");
       if (!should_retry(retry_options_)) {
         SPDLOG_WARN("send request failed and no retry, message={}", e.what());
         throw e;
       }
-
+      SPDLOG_INFO("wo shi 250");
       if (retry_count >= retry_options_.max_retry) {
         throw e;
       }
+      SPDLOG_INFO("wo shi 251");
       uint32_t interval_ms =
           std::min(retry_options_.retry_interval_ms +
                        retry_count * retry_options_.retry_interval_incr_ms,
@@ -362,6 +366,8 @@ void Channel::SendRequestWithRetry(const ::google::protobuf::Message& request,
           "interval_ms={}, message={}",
           retry_count, retry_options_.max_retry, interval_ms, e.what());
       std::this_thread::sleep_for(std::chrono::milliseconds(interval_ms));
+    } catch (const std::exception& e) {
+      SPDLOG_INFO("wo shi xxxx");
     }
   }
 }
